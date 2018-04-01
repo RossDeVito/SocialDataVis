@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Assignment 2, Ross DeVito</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <style type="text/css">
+            .mapLabel {
+                font-family: sans-serif;
+                font-size: 13px;
+                font-weight: 900;
+                fill: black;
+                text-shadow:-1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white,
+                            -1px 0 white, 
+                            0 1px white, 
+                            1px 0 white, 
+                            0 -1px white;
+                text-anchor: middle;
+            }
+            .gTitle {
+                font-family: sans-serif;
+                font-size: 22px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            .axisText {
+                font-family: sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            #mapPlot.container {
+                float: left;
+            }
+            #barGraph.container {
+                float: left;
+            }
+            #xBAxisDivs text {
+                display: none;
+            }
+            .noBrush {
+                fill: rgba(255, 0, 0,.4);
+                stroke: rgba(0, 0, 0,.6);
+                stroke-width: 1;
+            }
+            .notBrushed {
+                fill: rgba(255, 0, 0,0);
+                stroke: rgba(0, 0, 0,0);
+                stroke-width: 1;
+            }
+            .brushed {
+                fill: rgba(255, 0, 0,.5);
+                stroke: rgba(0, 0, 0,.8);
+                stroke-width: 1;
+            }
+            .line {
+                fill: none;
+                stroke: rgba(150, 0, 0,1);
+                stroke-width: 0.5;
+            }
+            .bar {
+                fill: rgba(150, 0, 0,1);
+            }
+            .col-centered{
+                float: none;
+                margin: 0 auto;
+            }
+            input[type=number]{
+                width: 80px;
+            }
+            .container{
+                padding-top: 60px;
+                margin-top: -40px;
+            }
+            .question{
+                margin-top: 15px;
+                margin-bottom: 5px;
+            }
+            tr.qRow td{
+                padding-left: 20px;
+            }
+        </style>
+    </head>
+    <body data-spy="scroll" data-target=".navbar" data-offset="100">
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <a class="navbar-brand text-normal" href="#">Social Data Analysis and Visualization</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#part1">Part 1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#part2">Part 2</a>
+                </li>
+            </ul>
+        </nav>
+        <div class = "container" style="margin-top:40px;">
+            <div class="row">
+                <div class="col">
+                    <h1 class="display-3">Assignment 2</h1>
+                </div>
+            </div>
+        </div>
+        <div id="part1" class = "container" style="margin-top:0px">
+            <div class="row">
+                <div class="col">
+                    <h2>Part 1: <small>Telling Data Stories</small></h2>
+                    <p>
+                        The questions below refer to Edward Segel and Jeffrey Heer's <a href="http://vis.stanford.edu/files/2010-Narrative-InfoVis.pdf" target="_blank">Narrative Visualization: Telling Stories with Data</a>.
+                    </p>
+                    <dl>
+                        <dt class="question">What is the Oxford English Dictionary's definition of a narrative?</dt>
+                        <dd>“An account of a series of events, facts, etc., given in order and with the establishing of connections between them.”</dd>
+                        <dt class="question">What is your favorite visualization among the examples in section 3? </dt>
+                        <dd>The first visualization, Steroids Or Not, the Pursuit is On, is my favorite due to how much it is able to analyze the one statistic in a static visualization.</dd>
+                        <dt class="question">What's the point of Figure 7?</dt>
+                        <dd>Figure 7 shows which visualizations used which design strategies. It shows relationships between visualization genre and design choices, as well as which design elements are consistently used versus underutilized.</dd>
+                        <dt class="question">Use Figure 7 to find the most common design choice within each category for the Visual narrative and Narrative structure.</dt>
+                        <table style="width:70%;margin-left:30px;">
+                            <tr><th>Visual Narrative:</th></tr> 
+                            <tr class="qRow">
+                                <td>Visual Structuring:</td>
+                                <td>Consistent Visual Platform</td>
+                            </tr>
+                            <tr class="qRow">
+                                <td>Highlighting:</td>
+                                <td>Feature Distinction</td>
+                            </tr>
+                            <tr class="qRow">
+                                <td>Transition Guidance:</td>
+                                <td>Object Continuity</td>
+                            </tr>
+                            <tr><th>Narrative Structure:</th></tr> 
+                            <tr class="qRow">
+                                <td>Ordering:</td>
+                                <td>User Directed Path</td>
+                            </tr>
+                            <tr class="qRow">
+                                <td>Interactivity:</td>
+                                <td>Filtering / Selection / Search</td>
+                            </tr>
+                            <tr class="qRow">
+                                <td>Messaging:</td>
+                                <td>Captions / Headlines</td>
+                            </tr>
+                        </table>
+                        <dt class="question">What is your favorite genre of narrative visualization? Why?</dt>
+                        <dd>Slide show is my favorite genre of narrative visualization due to its flexibility. Other genres of narrative visualization and interactivity can easily be incorporated into a slide show to more effectively tell a story with data. The slide show genre also lends itself well to having a martini glass structure.</dd>
+                        <dt class="question">What is your least favorite genre? Why?</dt>
+                        <dd>Magazine style is my least favorite for how it is most likely the least reader-driven.</dd>
+                    </dl>     
+                </div>
+            </div>
+        </div>
+        <div id="part2" class = "container" style="margin-top:0px">
+            <div class="row">
+                <div class="col">
+                    <h2>Part 2: <small>Visualizing Murders over Time</small></h2>
+                </div>
+            </div>
+            <div class="row" style="margin-top:20px">
+                <div class="col">
+                    <div class="container" id="linePlot" ></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <p align="right">Animate by:</p>
+                </div>
+                <div class="col">
+                    <div class="btn-group">
+                        <button type="button"
+                            data-timewidth=365
+                            class="btn btn-outline-secondary automateButton">
+                           Year
+                        </button>
+                        <button type="button"
+                            data-timewidth=91
+                            class="btn btn-outline-secondary automateButton">
+                           Quarter
+                        </button>
+                        <button type="button"
+                            data-timewidth=30
+                            class="btn btn-outline-secondary automateButton">
+                           Month
+                        </button>
+                        <button type="button"
+                            data-timewidth=7
+                            class="btn btn-outline-secondary automateButton">
+                           Week
+                        </button>
+                        <button type="button"
+                            data-timewidth=1
+                            class="btn btn-outline-secondary automateButton">
+                           Day
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <p align="right">Duration:</p>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <input type="number" id="duration"
+                            class="form-control" id="usr" 
+                            value="10" min="1">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="container" id="mapPlot"></div>
+                </div>
+                <div class="col">
+                    <div class="container" id="barChart"></div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            //w and h for map
+            //lpw and lph for line plot
+            //bcw and bch for bar plot
+            var margin = {top: 0, right: 0, bottom: 10, left: 0};
+            var w = 400 - margin.left - margin.right,
+                h = 400 - margin.top - margin.bottom;
+
+            var lpMargin = {top: 30, right: 10, bottom: 30, left: 30};
+            var lpw = 900 - lpMargin.left - lpMargin.right,
+                lph = 220 - lpMargin.top - lpMargin.bottom;
+
+            var bcMargin = {top: 40, right: 0, bottom: 30, left: 50};
+            var bcw = 380 - bcMargin.left - bcMargin.right,
+                bch = 400 - bcMargin.top - bcMargin.bottom;
+
+            var projection = d3.geoMercator()
+                .center([-73.9800,40.7128])
+                .scale(40000)
+                .translate([w /2, h /2]);
+
+            var path = d3.geoPath()
+                .projection(projection);
+
+            var color = d3.scaleOrdinal(d3.schemeSet2);
+
+            var formatAsThousands = d3.format(",");
+
+            var svg = d3.select("#mapPlot")
+                .append("svg")
+                .attr("width", w + margin.left + margin.right)
+                .attr("height", h + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," 
+                    + margin.top + ")");
+
+            var map = svg.append("g")
+                .attr("id", "map");
+
+            var svg2 = d3.select("#linePlot")
+                .append("svg")
+                .attr("width", lpw + lpMargin.left + lpMargin.right)
+                .attr("height", lph + lpMargin.top + lpMargin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + lpMargin.left + "," 
+                    + lpMargin.top + ")");                
+            var lPlot = svg2.append("g")
+                .attr("id", "lPlot");
+
+            var svg3 = d3.select("#barChart")
+                .append("svg")
+                .attr("width", bcw + bcMargin.left + bcMargin.right)
+                .attr("height", bch + bcMargin.top + bcMargin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + bcMargin.left + "," 
+                    + bcMargin.top + ")");
+            var bPlot = svg3.append("g")
+                .attr("id", "bPlot");
+
+            var xScale = d3.scaleTime()
+                .range([0,lpw])
+                .clamp(true);
+            var yScale = d3.scaleLinear()
+                .range([lph,0]);
+            var line = d3.line()
+                .x(function(d) { return xScale(new Date(d.key)); })
+                .y(function(d) { return yScale(d.value); });
+            var xAxis = d3.axisBottom()
+                .scale(xScale);
+            var yAxis = d3.axisLeft()
+                .scale(yScale);
+
+            //chart stuff 
+            var xBScale = d3.scaleBand()
+                .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,
+                    15,16,17,18,19,20,21,22,23])
+                .range([0, bcw])
+                .paddingInner(0.05);
+            var xBDivScale = d3.scaleBand()
+                .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,
+                    15,16,17,18,19,20,21,22])
+                .range([0, (bcw-xBScale.bandwidth())])
+                .paddingInner(0.05);
+            var yBScale = d3.scaleLinear()
+                .range([bch, 0]);
+
+            var xBAxis = d3.axisBottom()
+                .scale(xBScale)
+                .tickSizeInner(0);
+            var xBAxisDividers = d3.axisBottom()
+                .scale(xBDivScale)
+                .tickSizeInner(6)
+                .tickSizeOuter(0);
+
+            var yBAxis = d3.axisLeft()
+                .scale(yBScale);
+
+            var hours;
+
+            function drawChart() {
+                yBScale.domain([0, d3.max(hours)])
+
+                bPlot.selectAll("rect")
+                   .data(hours)
+                   .enter()
+                   .append("rect")
+                   .attr("class", "bar")
+                   .attr("x", function(d, i) {
+                        return xBScale(i);
+                   })
+                   .attr("y", function(d,i) {
+                        return yBScale(d);
+                   })
+                   .attr("width", xBScale.bandwidth())
+                   .attr("height", function(d,i) {
+                        return bch - yBScale(d);
+                   });
+
+                //Create X axis
+                bPlot.append("g")
+                    .attr("id", "xBAxis")
+                    .attr("transform", "translate(0," + bch + ")")
+                    .call(xBAxis);
+                bPlot.append("g")
+                    .attr("id", "xBAxisDivs")
+                    .attr("transform", "translate("+
+                        (xBScale.bandwidth()/2)+"," + bch + ")")
+                    .call(xBAxisDividers);
+                bPlot.select("#xBAxis")
+                    .append("text")
+                    .attr("class", "axisText")
+                    .attr("transform","translate("+bcw/2+",25)")
+                    .style("fill","black")
+                    .text("Hour");
+                
+                //Create Y axis
+                bPlot.append("g")
+                    .attr("id", "yBAxis")
+                    .call(yBAxis);
+                bPlot.select("#yBAxis")
+                    .append("text")
+                    .attr("class", "axisText")
+                    .attr("transform",
+                        "rotate(-90) translate("+(-bch/2)+",-30)")
+                    .text("Murders");
+
+                bPlot.append("text")       
+                    .attr("class", "gTitle")     
+                    .attr("transform","translate(" + (bcw/2) + " ," + (-15) + ")")
+                    .text("Murders by Hour");
+            }
+
+            function redrawChart() {
+                yBScale.domain([0, d3.max(hours)]);
+
+                bPlot.selectAll("rect")
+                   .data(hours)
+                   .transition()
+                   .duration(100)
+                   .attr("y", function(d,i) {
+                        return yBScale(d);
+                   })
+                   .attr("height", function(d,i) {
+                        return bch - yBScale(d);
+                   })
+                   .attr("fill", d3.schemeSet3[3]);
+                
+                //Create Y axis
+                bPlot.select("#yBAxis")
+                    .transition()
+                    .duration(100)
+                    .call(yBAxis);
+            }
+
+            var asDate = function(d) {
+                n = d.RPT_DT.split('/');
+                return new Date(+n[2], (+n[0]-1), +n[1]);
+            }
+
+            var rowConverter = function(d) {
+                return {
+                    RPT_DT: asDate(d),
+                    BORO_NM: d.BORO_NM,
+                    CMPLNT_FR_TM: d.CMPLNT_FR_TM,
+                    Latitude: d.Latitude,
+                    Longitude: d.Longitude
+                };
+            }
+
+            //files in
+            d3.json("nyc_boroughs.json", function(gjson) {
+                for (var i = 0; i < gjson.features.length; i++) {
+                    gjson.features[i].properties["murders"] = 0;
+                }
+                d3.csv("murders.csv", rowConverter, function(murders) {
+                    console.log(murders);
+
+                    for (var i = 0; i < murders.length; i++) {
+                        var murderBoro = murders[i].BORO_NM;
+                        murders[i].CMPLNT_FR_TM = parseInt(murders[i].CMPLNT_FR_TM);
+                        for (var j = 0; j < gjson.features.length; j++) {
+                            if (gjson.features[j].properties.
+                                BoroName.toUpperCase() == murderBoro) {
+                                gjson.features[j].properties.murders +=1;
+                                break;
+                            }
+                        }
+                    }
+
+                    color.domain(
+                        [d3.max(gjson.features, function(d){
+                            return d.properties.murders;
+                        }),
+                        d3.min(gjson.features, function(d){
+                            return d.properties.murders;
+                        })]);
+
+                    map.selectAll("path")
+                        .data(gjson.features)
+                        .enter()
+                        .append("path")
+                        .attr("d", path)
+                        .style("fill", function(d) {
+                            return color(d.properties.murders);
+                        });
+                        /*.append("title")
+                        .text( function(d) {
+                            return d.properties.murders+" murders";
+                        })*/
+
+                    var circles = map.selectAll("circle")
+                        .data(murders)
+                        .enter()
+                        .append("circle")
+                        .attr("class", "noBrush")
+                        .attr("cx", function(d) {
+                            return projection([d.Longitude,d.Latitude])[0];
+                        })
+                        .attr("cy", function(d) {
+                            return projection([d.Longitude,d.Latitude])[1];
+                        })
+                        .attr("r",2.1);
+
+                    map.selectAll("text")
+                        .data(gjson.features)
+                        .enter()
+                        .append("text")
+                        .attr("class", "mapLabel")
+                        .attr("x", function(d) {
+                            return (path.centroid(d)[0]);
+                        })
+                        .attr("y", function(d) {
+                            return path.centroid(d)[1];
+                        })
+                        .text(function(d) {
+                            return d.properties.BoroName;
+                        });
+
+                    //Path stuff
+                    var murderDates = d3.nest()
+                        .key(function(d) {
+                            return d.RPT_DT;
+                        })
+                        .rollup(function(d) {
+                            return d.length;
+                        })
+                        .entries(murders);
+
+                    murderDates = murderDates.sort(function(a,b) {
+                        return (new Date(a.key)) - (new Date(b.key));
+                    })
+                    var oldDates = murderDates.slice();
+                    for(var i=0; i < oldDates.length -1; i++) {
+                        var tomorrow = new Date(oldDates[i].key);
+                        tomorrow.setDate(tomorrow.getDate()+1);
+                        if (!(tomorrow == oldDates[i+1].key)) {
+                            murderDates.push({key:tomorrow.toString(),
+                                                value: 0});
+                            tomorrow.setDate(tomorrow.getDate()+1);
+                            if (!(tomorrow == oldDates[i+1].key)) {
+                                var prevDay = new Date(oldDates[i+1].key);
+                                prevDay.setDate(prevDay.getDate()-1);
+                                murderDates.push({key:prevDay.toString(),
+                                                value: 0});
+                            }
+                        }
+                    }
+                    murderDates = murderDates.sort(function(a,b) {
+                        return (new Date(a.key)) - (new Date(b.key));
+                    })
+
+                    console.log(murderDates);
+
+                    xScale.domain(d3.extent(murderDates, function(d) {
+                        return new Date(d.key);
+                    }));
+                    yScale.domain([
+                        0, 
+                        d3.max(murderDates, function(d) {
+                            return d.value;
+                        })
+                    ]);
+
+                    lPlot.append("path")
+                        .datum(murderDates)
+                        .attr("class","line")
+                        .attr("d",line);
+                    lPlot.append("g")
+                        .attr("id", "xAxis")
+                        .attr("transform", "translate(0," + lph + ")")
+                        .call(xAxis);
+                    lPlot.select("#xAxis")
+                        .append("text")
+                        .attr("class", "axisText")
+                        .attr("transform", "translate("+(lpw/2)+",25)")
+                        .text("Date");
+                    lPlot.append("g")
+                        .attr("id", "yAxis")
+                        .call(yAxis);
+                    lPlot.select("#yAxis")
+                        .append("text")
+                        .attr("class", "axisText")
+                        .attr("transform",
+                            "rotate(-90) translate("+(-lph/2)+",-20)")
+                        .text("Number of Murders");
+
+                    lPlot.append("text")       
+                        .attr("class", "gTitle")     
+                        .attr("transform","translate(" + (lpw/2) + " ," + 
+                            (-5) + ")")
+                        .style("text-anchor", "middle")
+                        .text("Murders in NYC Boroughs");
+
+                    var brush = d3.brushX()
+                        .extent(
+                            [[0,0],
+                            [lpw,lph]])
+                        .on("brush", onBrush)
+                        .on("start", resetBrush);
+
+                    lPlot.append("g")
+                        .attr("class","brush")
+                        .call(brush)
+                        .attr();
+
+                    function onBrush() {
+                        if (d3.event.selection != null) {
+                            hours = Array.apply(null, Array(24)).map(
+                                Number.prototype.valueOf,0);
+                            var bCoords = d3.brushSelection(this);
+
+                            var inBrush = circles.filter(function(d) {
+                                var xCoord = xScale(d.RPT_DT);
+                                //console.log(d.RPT_DT);
+                                return (xCoord >= bCoords[0] && 
+                                    xCoord <= bCoords[1]);
+                            })
+                            .attr("class", "brushed");
+
+                            var notIn = circles.filter(function(d) {
+                                var xCoord = xScale(d.RPT_DT);
+                                return !(xCoord >= bCoords[0] && 
+                                    xCoord <= bCoords[1]);
+                            })
+                            .attr("class", "notBrushed");
+                            
+                            for (var i = 0; i < inBrush._groups[0].length; 
+                                i++) {
+                                hours[inBrush._groups[0][i].__data__.CMPLNT_FR_TM] 
+                                    += 1;
+                            }
+                            redrawChart();
+                        }
+                        else {resetBrush();}
+                    }
+
+                    var rLead = -10, rTail = -10;
+
+                    function resetBrush() {
+                        if (d3.event.selection[0] != rTail &&
+                            d3.event.selection[1] != rLead) {
+                            circles.attr("class","noBrush");
+                        }
+                        rTail = d3.event.selection[0];
+                        rLead = d3.event.selection[1];
+                    }
+
+                    d3.selectAll(".automateButton")
+                        .on("click",annimateData);
+
+                    function annimateData() {
+                        var duration = document.getElementById("duration").value * 1000;
+                        var timePeriod = parseInt(this.dataset.timewidth);
+                        var trailDate = new Date(murderDates[0].key);
+                        var leadDate = new Date(trailDate);
+                        leadDate.setDate(leadDate.getDate() + 
+                                            timePeriod);
+
+                        d3.select(".brush")
+                            .call(brush.move, [xScale(trailDate),
+                            xScale(leadDate)]);
+
+                        leadDate = new Date(murderDates[
+                                            murderDates.length-1].key);
+                        trailDate = new Date(leadDate);
+                        trailDate.setDate(trailDate.getDate() - 
+                                            timePeriod);
+
+                        d3.select(".brush")
+                            .transition()
+                            .duration(duration)
+                            .ease(d3.easeLinear)
+                            .call(brush.move, [xScale(trailDate),
+                                                xScale(leadDate)]);
+                    }
+
+                    //bars stuff
+                    hours = Array.apply(null, Array(24)).map(
+                        Number.prototype.valueOf,0);
+                    for (var i = 0; i < murders.length; i++) {
+                        hours[murders[i].CMPLNT_FR_TM] += 1;
+                    }
+
+                    drawChart();
+                })
+                console.log(gjson);
+            })
+        </script>
+    </body>
+</html>
