@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Final Project</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+        <style type="text/css">
+            .mapSchool.noData {
+                fill: black;
+                fill-opacity: 0;
+                stroke: black;
+                stroke-width: 3;
+                stroke-opacity: .7;
+            }
+            .mapSchool.noData.msHidden {
+                opacity: .1;
+            }
+            .mapSchool.noData.msShown {
+                opacity: 1;
+                stroke-width: 4.5;
+            }
+            .mapSchool.hasData {
+                fill-opacity: 0;
+                stroke-width: 3.5;
+                stroke-opacity: 1;
+            }
+            .mapSchool.hasData.msHidden {
+                opacity: .1;
+            }
+            .mapSchool.hasData.msShown {
+                opacity: 1;
+                stroke-width: 4.5;
+            }
+            .scatterSchool {
+                fill-opacity: .1;
+                stroke-width: 2.3;
+                stroke-opacity: 1;
+            }
+            .scatterSchool.ssHidden.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.ssShown.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.ssHidden {
+                opacity: .15;
+            }
+            .scatterSchool.ssShown {
+                stroke-width: 3.3;
+                stroke-opacity: 1;
+            }
+            .clickSquare {
+                fill-opacity: 0;
+                stroke: black;
+                stroke-width: 4;
+            }
+            .zoom rect {
+                fill: black;
+                opacity: 0.2;
+            }
+            
+            .zoom rect {
+                rx: 5;  /* Rounded corners */
+                ry: 5;
+            }
+
+            .zoom text {
+                fill: black;
+                font-size: 18px;
+                text-anchor: middle;
+            }
+            .zoom:hover rect,
+            .zoom:hover text {
+                fill: blue;
+            }
+            .axisText {
+                font-family: sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            .typeLegendText {
+                font-family: sans-serif;
+                font-size: 12px;
+                fill: black;
+            }
+            #typeInfoTitle {
+                text-align: center;
+                position: realtive;
+                padding: 5px 50px;
+            }
+            #typeInfo {
+                font-family: sans-serif;
+                font-size: 12px;
+                fill: black;
+                text-align: center
+            }
+            .legendTitle {
+                font-family: sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            .x-axis line, .x-axis path { 
+                stroke: #fff; 
+            }
+            .tab { 
+                display:inline-block; 
+                margin-left: 40px;
+            }
+            #schoolInfoBasic.descRow p{
+                margin: 0;
+                padding: 0;
+            }
+            .descRow {
+                font-family: sans-serif;
+                font-size: 14px;
+                fill: black;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <a class="navbar-brand text-normal" href="#">Social Data Analysis and Visualization</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Visualization</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="explainer.html">Explainer</a>
+                </li>
+            </ul>
+        </nav>
+        <h2>Motivation</h2>
+            <br></br>
+            <br></br>
+            <p>
+                My dataset has two main parts. The neighbothood data is a combination of the shapefiles of the Neighborhood Tabulation Areas (https://data.cityofnewyork.us/City-Government/Neighborhood-Tabulation-Areas/cpf4-rkhq) and the tables from the Demographics and profiles at the Neighborhood Tabulation Area (NTA) level (https://data.cityofnewyork.us/City-Government/Demographics-and-profiles-at-the-Neighborhood-Tabu/hyuz-tij8). The school data is a combination of the data from the 2017 DOE High School Directory (https://data.cityofnewyork.us/Education/2017-DOE-High-School-Directory/s3k6-pzi2) and the 2016-17 School Quality Reports Results for high school (http://schools.nyc.gov/Accountability/tools/report/default.htm#Citywide).
+            </p>
+            <p>
+                I chose this dataset because this was something I discussed in high school in upstate New York, and I now go to school with many people who went through this system while all the changes were being made.
+            </p>
+            <P>
+                My goal for the end user's experience was to be able to see the general trends as far as what is making a difference in school performance, but also what schools or types of schools are able to break these trends. That's why schools are shown geographically, are shown by type, and can also be individually selected for more details. 
+            </P>
+        <h2>Basic Stats</h2>
+        <p>
+            The dataset I am currently working with is greatly cut down from the original sources. In selecting what data to keep the aim was to find attributes which might be good incicators of school performance either as metrics of performance or challenges overcome.
+        </p>
+        <p>
+            I did exploratory data analysis using an earlier version of the dataset and seaborn, a python package. The results were that most plots had a trend with notable outliers, so that steered me towards making this visualization potentially a tool for identifying and exploring those outliers.
+        </p>
+        <h2>Genre</h2>
+        <p>
+            The overall genre of this visualization is partitioned poster.
+        </p>
+        <p>
+            This project uses zooming on the map to both provide overall feels for areas in addition to being able to see detailed areas. A constant visual platform and object consistency are also used. The map and scatter plot remain the same even when things arounf them change, and the schools are always circles across both parts with a square when selected.
+        </p>
+        <p>
+            The project is very much user directed, allowing the user to change the variable and then hover and click for details on demand. There is also filtering by type to allow for type comparisons.
+        </p>
+        <h2>Discussion</h2>
+        <p>
+            I'm happy with how this project very much resembles the original goal, but if I were to do it again I would provide some more numerical analysis. That would provide even more information to use to compare schools or groups of school to determine what is best,
+        </p>
+        <h2>Contributions</h2>
+        <p>I did this project on my own</p>
+    </body>
+</html>

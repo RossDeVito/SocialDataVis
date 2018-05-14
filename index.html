@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Final Project</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+        <style type="text/css">
+            .mapSchool.noData {
+                fill: black;
+                fill-opacity: 0;
+                stroke: black;
+                stroke-width: 3;
+                stroke-opacity: .7;
+            }
+            .mapSchool.noData.msHidden {
+                opacity: .1;
+            }
+            .mapSchool.noData.msShown {
+                opacity: 1;
+                stroke-width: 4.5;
+            }
+            .mapSchool.hasData {
+                fill-opacity: 0;
+                stroke-width: 3.5;
+                stroke-opacity: 1;
+            }
+            .mapSchool.hasData.msHidden {
+                opacity: .1;
+            }
+            .mapSchool.hasData.msShown {
+                opacity: 1;
+                stroke-width: 4.5;
+            }
+            .scatterSchool {
+                fill-opacity: .1;
+                stroke-width: 2.3;
+                stroke-opacity: 1;
+            }
+            .scatterSchool.ssHidden.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.ssShown.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.hiddenSS {
+                opacity: 0;
+            }
+            .scatterSchool.ssHidden {
+                opacity: .15;
+            }
+            .scatterSchool.ssShown {
+                stroke-width: 3.3;
+                stroke-opacity: 1;
+            }
+            .clickSquare {
+                fill-opacity: 0;
+                stroke: black;
+                stroke-width: 4;
+            }
+            .zoom rect {
+                fill: black;
+                opacity: 0.2;
+            }
+            
+            .zoom rect {
+                rx: 5;  /* Rounded corners */
+                ry: 5;
+            }
+
+            .zoom text {
+                fill: black;
+                font-size: 18px;
+                text-anchor: middle;
+            }
+            .zoom:hover rect,
+            .zoom:hover text {
+                fill: blue;
+            }
+            .axisText {
+                font-family: sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            .typeLegendText {
+                font-family: sans-serif;
+                font-size: 12px;
+                fill: black;
+            }
+            #typeInfoTitle {
+                text-align: center;
+                position: realtive;
+                padding: 5px 50px;
+            }
+            #typeInfo {
+                font-family: sans-serif;
+                font-size: 12px;
+                fill: black;
+                text-align: center
+            }
+            .legendTitle {
+                font-family: sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                fill: black;
+                text-anchor: middle;
+            }
+            .x-axis line, .x-axis path { 
+                stroke: #fff; 
+            }
+            .tab { 
+                display:inline-block; 
+                margin-left: 40px;
+            }
+            #schoolInfoBasic.descRow p{
+                margin: 0;
+                padding: 0;
+            }
+            .descRow {
+                font-family: sans-serif;
+                font-size: 14px;
+                fill: black;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <a class="navbar-brand text-normal" href="#">Social Data Analysis and Visualization</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Visualization</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="explainer.html">Explainer</a>
+                </li>
+            </ul>
+        </nav>
+        <div class = "container" style="margin-top:40px;">
+            <div class="row">
+                <div class="col">
+                    <br></br>
+                    <br></br>
+                    <h1><strong>The State of Education in New York City</strong></h1>
+                </div>
+            </div>
+        </div>
+        <div id="part1" class = "container" style="margin-top:0px">
+            <div class="row">
+                <div class="col">
+                    <p>
+                        In the early 2000s the Mayor of New York City began an major overhaul of public education system. The main thrust of the effort was to increase school choice. This occured in two ways, geographic school choice and non-traditional types of high schools.
+                    </p>   
+                    <p>
+                        Geographic school choice meant that students were no longer inrolled in their closest school by default. Part of the rational behind this move to try to end the trend of poorer neighborhoods having failing schools that in turn left the residents in a bad position for socioeconomic improvement. The map below is broken down by neighborhood and allows you to compare the current relationship between high schools and the neighborhoods they are in.
+                    </p>
+                    <p> 
+                        Non-traditional types of high schools aim to serve students and their communities in different ways than traditional high schools. The visualisation will allow you to see both where these schools are now located and how their performance stacks up.
+                </div>
+            </div>
+        </div>
+        <div id="vis" class = "container" style="margin-top:0px">
+            <div class="row buttonRow">
+                <div class="btn-group float-right">
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle btn-outline-dark" type="button" id="mapStatDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Neighborhood Data
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="mapStatDropdown">
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent Unemployment" data-var="unemployment_rate">
+                                Unemployment
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Households with Less Than $10,000 annual income" data-var="less_that_10000">
+                                Income Less than $10,000
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent with Gross Rent as a Percentage of Household Income > 35%" data-var="GRAPI_35">
+                                Rent Burden
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Households With Food Stamp/SNAP Benefits in past 12 mo" data-var="food_stamps">
+                                Food Assistance
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Households with Cash Public Assistance Income" data-var="cash_assistance">
+                                Cash Assistance
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Adults with Less Than 9th Grade Education" data-var="less_than_9th">
+                                9th Grade Education
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Adults who Graduated High School" data-var="high_school_grad">
+                                High School Graduates
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Adults with a Bachelors Degree or Higher" data-var="bachelors_or_higher">
+                                Higher Education
+                            </button>
+                            <button class="dropdown-item msDDB" type="button" data-desc="Percent of Households with Incomplete Plumbing" data-var="incomplete_plumbing">
+                                Incomplete Plumbing
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle btn-outline-dark" type="button" id="mapStatDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            School Performance Metric
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="commonStatDropdown">
+                            <button class="dropdown-item cDDB" type="button" data-desc="4-Year Graduation Rate" data-var="Metric Value - 4-Year Graduation Rate">
+                                Graduation Rate
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="SQR Student Achievement Score" data-var="Student Achievement - Section Score">
+                                Student Achievement Score
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="Average Score SAT Math" data-var="Metric Value - Average Score SAT Math">
+                                SAT Score Math
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="Percent College Ready on SAT Math" data-var="Metric Value - % College Ready SAT Math">
+                                SAT Math College Ready
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="Average Score SAT Reading & Writing" data-var="Metric Value - Average Score SAT Reading and Writing">
+                                SAT Score Reading & Writing
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="Percent College Ready on SAT Reading & Writing" data-var="Metric Value - % College Ready SAT Reading and Writing">
+                                SAT Reading & Writing College Ready
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="Percent Passing an Industry-Recognized Technical Assessment" data-var="Metric Value - % Passing an Industry-Recognized Technical Assessment">
+                                Technical Assesments
+                            </button>
+                            <button class="dropdown-item cDDB" type="button" data-desc="In College, Vocational, or Public Service Program Within 6 mos. of Graduation" data-var="college_career_rate">
+                                College Career Rate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle btn-outline-dark" type="button" id="xStatDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Scatter Plot X-axis
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="xStatDropdown">
+                            <button class="dropdown-item xDDB" type="button" data-desc="Economic Need Index" data-var="Economic Need Index">
+                                Economic Need Index
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Average Grade 8 English Proficiency" data-var="Average Grade 8 English Proficiency">
+                                Grade 8 English Proficiency
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Average Grade 8 Math Proficiency" data-var="Average Grade 8 Math Proficiency">
+                                Grade 8 Math Proficiency
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent of Teachers with 3 or More Years of Experience" data-var="Percent of teachers with 3 or more years of experience">
+                                Teacher Experience
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Student Attendance Rate" data-var="Student Attendance Rate">
+                                Student Attendance
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Rate of Students Chronically Absent" data-var="Percent of Students Chronically Absent">
+                                Chronic Absence
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Total Number of Students" data-var="total_students">
+                                Number of Students
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent English Language Learners" data-var="Percent English Language Learners">
+                                English Language Learners
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent Overage/Undercredited" data-var="Percent Overage/ Undercredited">
+                                Overage/Undercredited
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent Students with Disabilities" data-var="Percent Students with Disabilities">
+                                Disabilities
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent in Temporary Housing" data-var="Percent in Temp Housing">
+                                Live in Temporary Housing
+                            </button>
+                            <button class="dropdown-item xDDB" type="button" data-desc="Percent Students Who Feel Safe at School" data-var="pct_stu_safe">
+                                Safety
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div  id="mapPlot" ></div>
+                    </div>
+                    <div class="row">
+                        <div id="mapLegend"></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <div id="scatterPlot" ></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div id="typeLegend" ></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <h6 id="typeInfoTitle">
+                                Click a color to filter by that school type
+                            </h6>
+                            <div id="typeInfo">
+                                <p>
+                                    Clicking the color again will remove the filter
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-5">
+                    <div id="schoolInfoBasic" class="descRow"></div>
+                </div>
+                <div class="col">
+                    <button type="button"
+                            class="btn btn-outline-secondary clearSelButton float-right invisible">
+                            Deselect School
+                    </button>
+                    <div id="schoolInfoLong" class="descRow"></div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            //w and h for map
+            //sw and sh for scatter plot
+            //bcw and bch for bar plot
+            var margin = {top: 0, right: 0, bottom: 10, left: 0};
+            var w = 600 - margin.left - margin.right,
+                h = 600 - margin.top - margin.bottom;
+
+            var sMargin = {top: 12, right: 5, bottom: 38, left: 40};
+            var sw = 480 - sMargin.left - sMargin.right,
+                sh = 480 - sMargin.top - sMargin.bottom;
+
+            var mapStat = "food_stamps";
+            var mapStatDisp = "Percent of Households With Food Stamp/SNAP Benefits in past 12 mo";
+            var commonStat = "college_career_rate";
+            var commonStatDisp = "In College, Vocational, or Public Service Program Within 6 mos. of Graduation";
+            var scatterX = "Economic Need Index";
+            var scatterXDisp = "Economic Need Index";
+
+            //clicking behavior stuff 1
+            var currentClick = null;
+            d3.selectAll(".clearSelButton")
+                        .on("click", function() {
+                            currentClick = null;
+                            d3.selectAll(".clickSquare").remove();
+                            $("#schoolInfoBasic").html("");
+                            $("#schoolInfoLong").html("");
+                            $(".clearSelButton").removeClass("visible");
+                            $(".clearSelButton").addClass("invisible");
+                        });
+
+            var pickSchool = function(s) {
+                d3.selectAll(".clickSquare").remove();
+                currentClick = s;
+
+                $(".clearSelButton").removeClass("invisible");
+                $(".clearSelButton").addClass("visible");
+                plotClickCircle(currentClick);
+            }
+
+            var plotClickCircle = function(s) {
+                $("#schoolInfoBasic").html("");
+                $("#schoolInfoLong").html("");
+                if (s) { 
+                    //add to scatter
+                    scatter.append("rect")
+                        .attr("width", 12)
+                        .attr("height", 12)
+                        .attr("x", function()  {
+                            if(isNaN(s[scatterX])) {
+                                return;
+                            }
+                            return xScale(s[scatterX]) -6;
+                        })
+                        .attr("y", function()  {
+                            if(isNaN(s[commonStat])) {
+                                return;
+                            }
+                            return yScale(s[commonStat]) -6;
+                        })
+                        .attr("class", "scatterClick clickSquare");
+
+                    //add to map
+                    map.append("rect")
+                        .attr("x", function() {
+                            return projection([s.Longitude, s.Latitude])[0] -7;
+                        })
+                        .attr("y", function() {
+                            return projection([s.Longitude, s.Latitude])[1] -7;
+                        })
+                        .attr("width", 14)
+                        .attr("height", 14)
+                        .attr("class", "mapClick clickSquare");
+                    $("#schoolInfoBasic").html("<h4><strong>"+s.school_name+"</strong></h4><p><strong>Type:</strong><span class='tab'>" + s["type"] +"</span></p><p><strong>Neighborhood:</strong><span class='tab'>" + s.NTA +"</span></p><p><strong>"+commonStatDisp+":</strong><span class='tab'>" + s[commonStat] +"</span></p><p><strong>"+scatterXDisp+":</strong><span class='tab'>" + s[scatterX] +"</span></p><br></br><p><strong>Contact Info:</strong></p><p><span class='tab'>" + s["phone_number"] +"</span></p><p><span class='tab'>" + s["school_email"] +"</span></p><p><strong>Website:</strong><span class='tab'><a href='http://"+s["website"]+"'>"+s["website"]+"</a></span></p><p><strong>Address:</strong></p><p><span class='tab'>" + s["primary_address_line_1"] +",</span></p><p><span class='tab'>" + s["city"] +", NY, "+s["Postcode"]+"</span></p>");
+                    $("#schoolInfoLong").html("<br></br><p>"+s["overview_paragraph"]+"</p><p><strong>Additional Info:</strong><span class='tab'>" + s["addtl_info1"] +"</span></p><p><strong>Extracurricular Activities:</strong><span class='tab'>" + s["extracurricular_activities"] +"</span></p>");
+                }
+            }
+
+            //map
+            var projection = d3.geoMercator()
+                .center([-73.9700,40.7128])
+                .scale(60000)
+                .translate([w /2, h /2]);
+
+            var mapColor = d3.scaleSequential(d3.interpolateGreens);
+            var schoolProColor = d3.scaleSequential(d3.interpolatePlasma);
+
+            var svg = d3.select("#mapPlot")
+                .append("svg")
+                .attr("width", w + margin.left + margin.right)
+                .attr("height", h + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," 
+                    + margin.top + ")");
+
+            var zooming = function(d) {
+                var offset = [d3.event.transform.x, d3.event.transform.y];
+                //Calculate new scale
+                var newScale = d3.event.transform.k * 2000;
+                //Update projection with new offset and scale
+                projection.translate(offset)
+                          .scale(newScale);
+                //Update all paths and circles
+                svg.selectAll("path")
+                    .attr("d", path);
+                svg.selectAll("circle")
+                    .attr("cx", function(d) {
+                        return projection([d.Longitude, d.Latitude])[0];
+                    })
+                    .attr("cy", function(d) {
+                        return projection([d.Longitude, d.Latitude])[1];
+                    });
+                d3.selectAll(".mapClick").remove();
+                plotClickCircle(currentClick);
+            }
+
+            var zoom = d3.zoom()
+                .scaleExtent([30,900])
+                .translateExtent([[-10,-10],[10,10]])
+                .on("zoom", zooming);
+
+            var center = projection([-73.9800,40.7128])
+
+            var map = svg.append("g")
+                .attr("id", "map")
+                .call(zoom)
+                .call(zoom.transform, d3.zoomIdentity
+                    .translate(w/2,h/2)
+                    .scale(30)
+                    .translate(0,0));
+
+            map.append("rect")
+                .attr("x", margin.left)
+                .attr("y", margin.top)
+                .attr("width", w)
+                .attr("height", h)
+                .attr("opacity", 0);
+
+            var path = d3.geoPath()
+                .projection(projection);
+
+            //mapLegend
+
+            var mapLegendSvg = d3.select("#mapLegend")
+                .append("svg")
+                .attr("width", w + margin.left + margin.right)
+                .attr("height", 100);
+
+            var mlBarH = 10;
+            var mlBarW = w;
+
+            var defs = mapLegendSvg.append("defs");
+  
+            var linearGradientM = defs.append("linearGradient")
+                  .attr("id", "linear-gradientM");
+
+            var linearGradientC = defs.append("linearGradient")
+                  .attr("id", "linear-gradientC");
+
+            //scatter
+
+            var typeColor = d3.scaleOrdinal(d3.schemeCategory10)
+                .domain(["No Type", "Community", "Early College",
+                    "P-TECH", "Specialized", 
+                    "School for New Arrivals", "Performance Assessment",
+                    "International Performance Assessment", 
+                    "Male Only", "Female Only"]);
+
+            var svgScatter = d3.select("#scatterPlot")
+                .append("svg")
+                .attr("width", sw + sMargin.left + sMargin.right)
+                .attr("height", sh + sMargin.top + sMargin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + sMargin.left + "," 
+                    + sMargin.top + ")");
+
+            var scatter = svgScatter.append("g")
+                .attr("id", "scatter");
+
+            var xScale = d3.scaleLinear()
+                .range([0,sw])
+                .nice();
+            var yScale = d3.scaleLinear()
+                .range([sh, 0])
+                .nice();
+            var xAxis = d3.axisBottom()
+                .scale(xScale);
+            var yAxis = d3.axisLeft()
+                .scale(yScale);
+
+            //typeLegend
+
+            var svgTypeLegend = d3.select("#typeLegend")
+                .append("svg")
+                .attr("width", sw + sMargin.left + sMargin.right)
+                .attr("height", 120);
+            var legend = svgTypeLegend.selectAll("legend")
+                .data(typeColor.domain())
+                .enter()
+                .append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d,i) {
+                    if (i<5) {
+                        return "translate(0," +(i*20+17)+")";
+                    } else {
+                        return "translate(0," +((i-5)*20+17)+")";
+                    }
+                    
+                });
+            svgTypeLegend.append("text")
+                .attr('x', 240)
+                .attr('y', 13)
+                .attr("class", "legendTitle")
+                .text("School Type");
+            legend.append('rect')
+                .attr('x', function(d,i) {
+                    if (i<5) {
+                        return 110;
+                    } else {
+                        return 370;
+                    }
+                })
+                .attr('width', 18)
+                .attr('height', 18)
+                .style('fill', typeColor);
+            legend.append('text')
+                .attr('x', function(d,i) {
+                    if (i<5) {
+                        return 110-6;
+                    } else {
+                        return 370-6;
+                    }
+                })
+                .attr('y', 9)
+                .attr('dy', '.35em')
+                .attr("class", "typeLegendText")
+                .style('text-anchor', 'end')
+                .text(function(d){ return d; });
+
+            var currentType = "not a type";
+
+            legend.on('click', function(type){
+                if (type == currentType) {
+                    d3.selectAll(".scatterSchool:not(.hiddenSS)")
+                        .attr("class", "scatterSchool");
+                    d3.selectAll(".mapSchool.noData")
+                        .attr("class", "mapSchool noData");
+                    d3.selectAll(".mapSchool.hasData")
+                        .attr("class", "mapSchool hasData");
+                    currentType = "not a type";
+                    d3.select("#typeInfoTitle")
+                        .text("Click a color to filter by that school type");
+                    d3.select("#typeInfo")
+                        .html("<p>Clicking the color again will remove the filter</p>");
+                } else {
+                    currentType = type;
+                    d3.selectAll('.scatterSchool')
+                        .classed("ssHidden", function(d){
+                            return d["type"] != currentType;
+                        })
+                        .classed("ssShown", function(d){
+                            return d["type"] == currentType;
+                        });
+                    d3.selectAll('.mapSchool.noData')
+                        .attr("class", "mapSchool noData msHidden")
+                        .filter(function(d){
+                            return d["type"] == currentType;
+                        })
+                        .attr("class", "mapSchool noData msShown");
+                    d3.selectAll('.mapSchool.hasData')
+                        .attr("class", "mapSchool hasData msHidden")
+                        .filter(function(d){
+                            return d["type"] == currentType;
+                        })
+                        .attr("class", "mapSchool hasData msShown");
+                    d3.select("#typeInfoTitle")
+                        .text(type);
+                    d3.select("#typeInfo")
+                        .html(function() {
+                            switch (currentType) {
+                                case "No Type":
+                                    return "<p>Traditional public schools which do not fit into any of the other categories.</p>";
+                                case "Community":
+                                    return '<p>"The NYC Community Schools Initiative is a central element of Mayor Bill de Blasio\'s vision to re-imagine the City\'s school system. Community Schools are neighborhood hubs where students receive high-quality academic instruction, families can access social services, and communities congregate to share resources and address their common challenges. [...]</p><p>Community Schools recognize that students who are hungry, can’t see the blackboard, or are missing school regularly face critical obstacles to learning in the classroom. By providing an extra meal, connecting a parent to job training, or enrolling a student in an afterschool program, they can lower barriers to learning and help kids succeed."</p><p>From <a href=\'http://www1.nyc.gov/site/communityschools/index.page\'>NYC Community Schools site</a></p>';
+                                case "Early College":
+                                    return "<p>Early College Schools blend rigoroug college-prep curriculum with the opportunity to earn up to two years of college credit while in high school at no cost to students.</p>";
+                                case "P-TECH":
+                                    return '<p>"PTECH is an innovative six-year high school program that prepares students for college and STEM careers in competitive industries. Each one of the seven NYC P-Tech schools is affiliated with a CUNY community college that offers courses towards an Associate degree, at no cost to the student. The schools also work with industry partners to support students in exploring careers and skills needed to work in STEM industries.</p><p>PTECH high schools are open to all students and are designed to go from Grade 9 to Grade 14 so that students graduate with a high school diploma, earn college credits towards an Associate’s degree, and gain work experience."</p><p>From <a href=\'http://nycptechschools.org/web/\'>NYC P-TECH Schools site</a></p>';
+                                case "Specialized":
+                                    return '<p>Nine selective high schools for students who excell academically and/or artistically. Each school is focused on either STEM, liberal arts, or the arts. The SHSAT exam is the only criteria for entrance except for the arts focused Fiorello H. LaGuardia High School, which has an audition process.</p>'
+                                case "School for New Arrivals":
+                                    return '<p>Serve students who are new to the country.</p>';
+                                case "Performance Assessment":
+                                    return '<p>Performance Assessment Schools, which base graduation requirements on the successful completion of performance assessments in major subject areas in lieu of one or more Regents exams.</p>';
+                                case "International Performance Assessment":
+                                    return '<p>Performance Assessment style schools that serve students who are new to the coutry.</p>';
+                                case "International Performance Assessment":
+                                    return '<p>Performance Assessment style schools that serve students who are new to the coutry.</p>';
+                                case "Male Only":
+                                    return '<p>Male only public high schools.</p>'
+                                case "Female Only":
+                                    return '<p>Female only public high schools.</p>'
+                            }
+                        });
+                }
+            })
+
+            //files in
+            d3.json("NTA.geojson", function(gjson) {
+                d3.csv("schools.csv",  function(schools) {
+                    //map
+                    mapColor.domain(
+                        [d3.min(gjson.features, function(d){
+                            return d.properties[mapStat];
+                        }),
+                        d3.max(gjson.features, function(d){
+                            return d.properties[mapStat];
+                        })]);
+
+                    schoolProColor.domain(
+                        [d3.max(schools, function(d){
+                            if(isNaN(d[commonStat])){
+                                return -Infinity;
+                            }
+                            return d[commonStat];
+                        }),
+                        d3.min(schools, function(d){
+                            if(isNaN(d[commonStat])){
+                                return Infinity;
+                            }
+                            return d[commonStat];
+                        })]);
+
+                    map.selectAll("path")
+                        .data(gjson.features)
+                        .enter()
+                        .append("path")
+                        .attr("d", path)
+                        .style("fill", function(d) {
+                            return mapColor(d.properties[mapStat]);
+                        })
+                        .style("stroke", "rgb(10,10,10)")
+                        .style("stroke-width", ".5")
+                        .append("title")
+                        .text(function(d) {
+                            return "Neighborhood:    " + d.properties.ntaname
+                                + "\n"+mapStatDisp+":    " + d.properties[mapStat];
+                        });
+                    map.selectAll("circle")
+                        .data(schools)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", function(d) {
+                            return projection([d.Longitude, d.Latitude])[0];
+                        })
+                        .attr("cy", function(d) {
+                            return projection([d.Longitude, d.Latitude])[1];
+                        })
+                        .attr("r", 4)
+                        .style("fill", function(d) {
+                            return schoolProColor(d[commonStat]);
+                        })
+                        .style("stroke", function(d) {
+                            return schoolProColor(d[commonStat]);
+                        })
+                        .attr("class", function(d) {
+                            if(isNaN(
+                                d[commonStat])) {
+                                return "mapSchool noData";
+                            } else {return "mapSchool hasData";}
+                        })
+                        .on("click", function(d) {
+                            pickSchool(d);
+                        })
+                        .append("title")
+                        .text(function(d) {
+                            return "School:    " + d.school_name
+                                + "\n"+commonStatDisp+":    " + 
+                                d[commonStat] +
+                                "\nType:    " + d["type"] +"\n\nClick for more info"
+                        });
+
+                    createZoomButtons();
+
+                    //scatter
+                    xScale.domain(
+                        [ 0,
+                        d3.max(schools, function(d){
+                            if(isNaN(d["Economic Need Index"])){
+                                return -Infinity;
+                            }
+                            return d["Economic Need Index"];
+                        })]);
+                    yScale.domain(
+                        [0,
+                        d3.max(schools, function(d){
+                            if(isNaN(d[commonStat])){
+                                return -Infinity;
+                            }
+                            return d[commonStat];
+                        })]);
+
+                    scatter.selectAll("circle")
+                        .data(schools)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", function(d) {
+                            if(isNaN(d["Economic Need Index"])) {
+                                return;
+                            }
+                            return xScale(d["Economic Need Index"]);
+                        })
+                        .attr("cy", function(d) {
+                            if(isNaN(d[commonStat])) {
+                                return;
+                            }
+                            return yScale(d[commonStat]);
+                        })
+                        .attr("r", 2.5)
+                        .style("fill", function(d) {
+                            return typeColor(d["type"]);
+                        })
+                        .style("stroke", function(d) {
+                            return typeColor(d["type"]);
+                        })
+                        .attr("class", function(d) {
+                            if(isNaN(d[scatterX]) || isNaN(d[commonStat])) {
+                                return "scatterSchool hiddenSS";
+                            }else{ return  "scatterSchool"; }
+                        })
+                        .on("click", function(d) {
+                            pickSchool(d);
+                        });
+
+                    scatter.append("g")
+                        .attr("id", "xAxis")
+                        .attr("transform", "translate(0," + sh + ")")
+                        .call(xAxis);
+                    scatter.select("#xAxis")
+                        .append("text")
+                        .attr("class", "axisText")
+                        .attr("id", "xAxisText")
+                        .attr("transform", "translate("+(sw/2)+",30)")
+                        .text("Econoic Need Index");
+                    scatter.append("g")
+                        .attr("id", "yAxis")
+                        .call(yAxis);
+                    scatter.select("#yAxis")
+                        .append("text")
+                        .attr("class", "axisText")
+                        .attr("id", "commonAxisText")
+                        .attr("transform",
+                            "rotate(-90) translate("+(-sh/2)+",-30)")
+                        .text(commonStatDisp);
+
+                    //map bar scales
+                    ////map coloring
+
+                    var axisScaleM = d3.scaleLinear()
+                        .domain(mapColor.domain())
+                        .range([margin.left, mlBarW - margin.right])
+
+                    var axisBottomM = d3.axisBottom()
+                        .scale(axisScaleM)
+                        .ticks(mlBarW / 80)
+                        .tickSize(mlBarH);
+
+                    linearGradientM.selectAll("stop")
+                        .data(mapColor.ticks().map((t, i, n) => ({ 
+                            offset: `${100*i/n.length}%`, color: mapColor(t) 
+                        })))
+                        .enter().append("stop")
+                        .attr("offset", d => d.offset)
+                        .attr("stop-color", d => d.color);
+
+                    mapLegendSvg.append('g')
+                        .attr("transform", `translate(0,${ margin.bottom - mlBarH})`)
+                        .append("rect")
+                        .attr('transform', `translate(${margin.left}, 18)`)
+                        .attr("width", mlBarW - margin.right - margin.left)
+                        .attr("height", mlBarH)
+                        .style("fill", "url(#linear-gradientM)");
+                      
+                    mapLegendSvg.append('g')  
+                        .call(axisBottomM)
+                        .attr("id", "mapAxis")
+                        .attr("class", `x-axis`)
+                        .attr("transform", `translate(0,${mlBarH - margin.bottom+18})`);
+
+                    mapLegendSvg.append("text")
+                        .attr('x', mlBarW/2)
+                        .attr('y', 12)
+                        .attr("class", "legendTitle")
+                        .attr("id", "mapDispBar")
+                        .text(mapStatDisp);
+
+                    ////common coloring
+
+                    var schoolProColorRev = d3.scaleSequential(d3.interpolatePlasma)
+                        .domain([schoolProColor.domain()[1],
+                            schoolProColor.domain()[0]]);
+
+                    var axisScaleC = d3.scaleLinear()
+                        .domain(schoolProColorRev.domain())
+                        .range([margin.left, mlBarW - margin.right])
+
+                    var axisBottomC = d3.axisBottom()
+                        .scale(axisScaleC)
+                        .ticks(mlBarW / 85)
+                        .tickSize(mlBarH);
+
+                    linearGradientC.selectAll("stop")
+                        .data(schoolProColorRev.ticks().map((t, i, n) => ({ 
+                            offset: `${100*i/n.length}%`, color: schoolProColorRev(t) 
+                        })))
+                        .enter().append("stop")
+                        .attr("offset", d => d.offset)
+                        .attr("stop-color", d => d.color);
+
+                    mapLegendSvg.append('g')
+                        .attr("transform", `translate(0,${ margin.bottom - mlBarH})`)
+                        .append("rect")
+                        .attr('transform', `translate(${margin.left}, 68)`)
+                        .attr("width", mlBarW - margin.right - margin.left)
+                        .attr("height", mlBarH)
+                        .style("fill", "url(#linear-gradientC)")
+                        .attr("transform", "rotate(180, 300, 39)");
+                      
+                    mapLegendSvg.append('g')
+                        .call(axisBottomC)
+                        .attr("class", `x-axis`)
+                        .attr("id", "commonBarAxis")
+                        .attr("transform", `translate(0,${mlBarH - margin.bottom+68})`);
+
+                    mapLegendSvg.append("text")
+                        .attr('x', mlBarW/2)
+                        .attr('y', 62)
+                        .attr("class", "legendTitle")
+                        .attr("id", "comDispBar")
+                        .text(commonStatDisp);
+
+                    $("#schoolInfoLong").html("Click on a school on the map or plot for more info");
+
+                    //update functions ################################3
+                    function updateX() {
+                        xScale.domain(
+                            [0,
+                            d3.max(schools, function(d){
+                                if(isNaN(d[scatterX])){
+                                    return -Infinity;
+                                }
+                                return d[scatterX];
+                            })]);
+
+                        if (scatterX == "Student Attendance Rate") {
+                            xScale.domain(
+                            [.6,
+                            d3.max(schools, function(d){
+                                if(isNaN(d[scatterX])){
+                                    return -Infinity;
+                                }
+                                return d[scatterX];
+                            })]);
+                        }
+
+                        scatter.selectAll("circle")
+                            .data(schools)
+                            .transition()
+                            .duration(1000)
+                            .attr("cx", function(d) {
+                                if(isNaN(d[scatterX])) {
+                                    return;
+                                }
+                                return xScale(d[scatterX]);
+                            });
+
+                        scatter.selectAll(".scatterSchool")
+                            .classed("hiddenSS", function(d) {
+                                if(isNaN(d[commonStat]) || isNaN(d[scatterX])) {
+                                    return true;
+                                }else{ return  false; }
+                            });
+
+                        scatter.select("#xAxis")
+                            .transition()
+                            .duration(1000)
+                            .call(xAxis);
+                        scatter.select("#xAxisText")
+                            .text(scatterXDisp);
+
+                        d3.selectAll(".scatterClick").remove();
+                        setTimeout(function(){
+                            plotClickCircle(currentClick);
+                        }, 1000);
+                    }
+
+                    function updateCommon() {
+                        schoolProColor.domain(
+                        [d3.max(schools, function(d){
+                            if(isNaN(d[commonStat])){
+                                return -Infinity;
+                            }
+                            return d[commonStat];
+                        }),
+                        d3.min(schools, function(d){
+                            if(isNaN(d[commonStat])){
+                                return Infinity;
+                            }
+                            return d[commonStat];
+                        })]);
+
+                        map.selectAll("circle")
+                            .data(schools)
+                            .transition()
+                            .duration(1000)
+                            .style("fill", function(d) {
+                                return schoolProColor(d[commonStat]);
+                            })
+                            .style("stroke", function(d) {
+                                return schoolProColor(d[commonStat]);
+                            })
+                            .attr("class", function(d) {
+                                if(isNaN(
+                                    d[commonStat])) {
+                                    return "mapSchool noData";
+                                } else {return "mapSchool hasData";}
+                            });
+
+                        map.selectAll("circle")
+                            .data(schools)
+                            .select("title")
+                            .text(function(d) {
+                                return "School:    " + d.school_name
+                                    + "\n"+commonStatDisp+":    " + 
+                                    d[commonStat] +
+                                    "\nType:    " + d["type"] +"\n\nClick for more info"
+                            });
+
+                        mapLegendSvg.select("#comDispBar")
+                            .text(commonStatDisp);
+
+                        schoolProColorRev = d3.scaleSequential(d3.interpolatePlasma)
+                            .domain([schoolProColor.domain()[1],
+                                schoolProColor.domain()[0]]);
+
+                        axisScaleC.domain(schoolProColorRev.domain());
+
+                        mapLegendSvg.select("#commonBarAxis")
+                            .call(axisBottomC);
+
+                        yScale.domain(
+                            [0,
+                            d3.max(schools, function(d){
+                                if(isNaN(d[commonStat])){
+                                    return -Infinity;
+                                }
+                                return d[commonStat];
+                            })]);
+
+                        scatter.selectAll("circle")
+                            .data(schools)
+                            .transition()
+                            .duration(1000)
+                            .attr("cy", function(d) {
+                                if(isNaN(d[commonStat])) {
+                                    return;
+                                }
+                                return yScale(d[commonStat]);
+                            });
+
+                        scatter.selectAll(".scatterSchool")
+                            .classed("hiddenSS", function(d) {
+                                if(isNaN(d[commonStat]) || isNaN(d[scatterX])) {
+                                    return true;
+                                }else{ return  false; }
+                            });
+
+                        scatter.select("#yAxis")
+                            .transition()
+                            .duration(1000)
+                            .call(yAxis);
+                        scatter.select("#commonAxisText")
+                            .text(commonStatDisp);
+
+                        d3.selectAll(".scatterClick").remove();
+                        setTimeout(function(){
+                            plotClickCircle(currentClick);
+                        }, 1000);
+                    }
+
+                    function updateMap() {
+                        mapColor.domain(
+                            [d3.min(gjson.features, function(d){
+                                return d.properties[mapStat];
+                            }),
+                            d3.max(gjson.features, function(d){
+                                return d.properties[mapStat];
+                            })]);
+
+                        map.selectAll("path")
+                            .data(gjson.features)
+                            .transition()
+                            .duration(1000)
+                            .attr("d", path)
+                            .style("fill", function(d) {
+                                return mapColor(d.properties[mapStat]);
+                            })
+                            .style("stroke", "rgb(10,10,10)")
+                            .style("stroke-width", ".5");
+
+                         map.selectAll("path")
+                            .data(gjson.features)
+                            .select("title")
+                            .text(function(d) {
+                                return "Neighborhood:    " + d.properties.ntaname
+                                    + "\n"+mapStatDisp+":    " + d.properties[mapStat];
+                            });
+                        mapLegendSvg.select("#mapDispBar")
+                            .text(mapStatDisp);
+
+                        axisScaleM.domain(mapColor.domain());
+
+                        mapLegendSvg.select("#mapAxis")
+                            .call(axisBottomM);
+                    }
+            
+                    //buttons
+
+                    d3.selectAll(".msDDB")
+                        .on("click",mapButtonPress);
+
+                    function mapButtonPress() {
+                        mapStat = this.dataset.var;
+                        mapStatDisp = this.dataset.desc;
+
+                        updateMap();
+                    }
+
+                    d3.selectAll(".cDDB")
+                        .on("click",performanceButtonPress);
+
+
+                    function performanceButtonPress() {
+                        commonStat = this.dataset.var;
+                        commonStatDisp = this.dataset.desc;
+
+                        updateCommon();
+                    }
+
+                    d3.selectAll(".xDDB")
+                        .on("click",xButtonPress);
+
+
+                    function xButtonPress() {
+                        scatterX = this.dataset.var;
+                        scatterXDisp = this.dataset.desc;
+
+                        updateX();
+                    }
+                });
+            });
+
+            var createZoomButtons = function() {
+                var zoomIn = map.append("g")
+                    .attr("class", "zoom")
+                    .attr("id", "in")
+                    .attr("transform", "translate(" + (w - 110) + "," + 
+                        (h - 50) + ")");
+
+                zoomIn.append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", 30)
+                    .attr("height", 30);
+
+                zoomIn.append("text")
+                    .attr("x", 15)
+                    .attr("y", 20)
+                    .text("+");
+                
+                var zoomOut = map.append("g")
+                    .attr("class", "zoom")
+                    .attr("id", "out")
+                    .attr("transform", "translate(" + (w - 70) + "," + (h - 50) + ")");
+
+                zoomOut.append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", 30)
+                    .attr("height", 30);
+
+                zoomOut.append("text")
+                    .attr("x", 15)
+                    .attr("y", 20)
+                    .html("&ndash;");
+
+                d3.selectAll(".zoom")
+                    .on("click", function() {
+                        var scaleFactor;
+                        
+                        var direction = d3.select(this).attr("id");
+
+                        switch (direction) {
+                            case "in":
+                                scaleFactor = 1.5;
+                                break;
+                            case "out":
+                                scaleFactor = 0.75;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        map.transition()
+                            .call(zoom.scaleBy, scaleFactor);
+                    });
+            };
+
+        </script>
+    </body>
+</html>
